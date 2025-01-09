@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vitrine Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      width: 600px;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      border: 1px solid #000;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="number"], input[type="color"], select {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .dimensions {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dimensions span {
+      font-size: 16px;
+    }
+
+    .type-selector {
+      font-size: 16px;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Vitrine sur mesure</h1>
+
+  <!-- Formulaire pour choisir les caractéristiques de la vitre -->
+  <div class="container">
+    <form id="vitrineForm">
+      <label for="width">Largeur (cm) :</label>
+      <input type="number" id="width" name="width" min="50" max="500" required>
+
+      <label for="height">Hauteur (cm) :</label>
+      <input type="number" id="height" name="height" min="50" max="500" required>
+
+      <label for="color">Couleur :</label>
+      <input type="color" id="color" name="color" value="#FFFFFF">
+
+      <label for="type" class="type-selector">Type de vitre :</label>
+      <select id="type" name="type">
+        <option value="full">Vitre pleine</option>
+        <option value="middle-bar">Vitre avec barre au centre</option>
+        <option value="four-panels">Vitre avec 4 parties</option>
+      </select>
+
+      <button type="submit">Mettre à jour la vitrine</button>
+    </form>
+  </div>
+
+  <!-- Canvas pour afficher la vitre -->
+  <canvas id="glassPreview" width="500" height="300"></canvas>
+
+  <div class="dimensions">
+    <span id="dimensionDisplay">Largeur: 0 cm, Hauteur: 0 cm</span>
+  </div>
+
+  <script>
+    const form = document.getElementById('vitrineForm');
+    const canvas = document.getElementById('glassPreview');
+    const ctx = canvas.getContext('2d');
+    const dimensionDisplay = document.getElementById('dimensionDisplay');
+
+    // Fonction pour mettre à jour l'affichage de la vitre
+    function updatePreview(data) {
+      const { width, height, color, type } = data;
+
+      // Effacer le canvas avant de redessiner
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Définir la couleur de la vitre
+      ctx.fillStyle = color || 'transparent';
+
+      // Dessiner la vitre
+      if (type === 'full') {
+        // Vitre pleine
+        ctx.fillRect(50, 50, width, height);
+      } else if (type === 'middle-bar') {
+        // Vitre avec barre au centre
+        ctx.fillRect(50, 50, width, height / 2); // Partie supérieure
+        ctx.fillRect(50, 50 + height / 2, width, height / 2); // Partie inférieure
+
+        // Ajouter la barre noire au centre
+        const middleY = 50 + height / 2 - 10;
+        ctx.fillStyle = 'black';
+        ctx.fillRect(50, middleY, width, 20);
+      } else if (type === 'four-panels') {
+        // Vitre avec 4 parties égales
+        const panelWidth = width / 2;
+        const panelHeight = height / 2;
+        ctx.fillRect(50, 50, panelWidth, panelHeight); // Panneau supérieur gauche
+        ctx.fillRect(50 + panelWidth, 50, panelWidth, panelHeight); // Panneau supérieur droit
+        ctx.fillRect(50, 50 + panelHeight, panelWidth, panelHeight); // Panneau inférieur gauche
+        ctx.fillRect(50 + panelWidth, 50 + panelHeight, panelWidth, panelHeight); // Panneau inférieur droit
+      }
+
+      // Afficher les dimensions dans la page
+      dimensionDisplay.textContent = `Largeur: ${width} cm, Hauteur: ${height} cm`;
+    }
+
+    // Gérer la soumission du formulaire
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // Empêcher le rechargement de la page
+
+      // Récupérer les données du formulaire
+      const width = parseInt(document.getElementById('width').value);
+      const height = parseInt(document.getElementById('height').value);
+      const color = document.getElementById('color').value;
+      const type = document.getElementById('type').value;
+
+      // Mettre à jour l'affichage de la vitre avec les nouvelles données
+      updatePreview({ width, height, color, type });
+    });
+  </script>
+
+</body>
+</html>
